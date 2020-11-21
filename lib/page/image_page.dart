@@ -30,10 +30,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image/image.dart' as ImageUtil;
 
-import '../helper/identify.dart';
-import '../helper/rotatescale.dart';
-import '../helper/helper.dart';
-import 'result_page.dart';
+import 'package:anfa/helper/identify.dart';
+import 'package:anfa/helper/rotatescale.dart';
+import 'package:anfa/helper/helper.dart';
+import 'package:anfa/page/result_page.dart';
 
 class CropPage extends StatefulWidget {
   CropPage({Key key, this.image, this.imageInfo}) : super(key: key);

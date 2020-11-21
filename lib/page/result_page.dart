@@ -22,8 +22,8 @@ class ResultState extends State<ResultPage> {
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
-    var picHeight = 260.0;
-    var scrollHeight = height - (260.0 + 120.0);
+    var picHeight = height*0.6;
+    var scrollHeight = height - (height*0.6 + 120.0);
     return new Scaffold(
         body: new Center(
             child: new Stack(children: <Widget>[
@@ -32,7 +32,7 @@ class ResultState extends State<ResultPage> {
           new Container(
               child: new RawImage(
                 image: widget.image,
-                scale: 0.5,
+                scale: 0.7,
               ),
               padding:
                   const EdgeInsets.only(left: 20.0, top: 30.0, right: 20.0),
@@ -60,7 +60,7 @@ class ResultState extends State<ResultPage> {
         top: 30.0,
         height: 40.0,
         width: 40.0,
-        left: 10.0,
+        left: 5.0,
         child: new RaisedButton(
             onPressed: () => Navigator.pop(context, ""),
             padding: EdgeInsets.all(10.0),

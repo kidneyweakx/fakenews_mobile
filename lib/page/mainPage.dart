@@ -7,9 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:camera/camera.dart';
+import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
 
-import 'image_page.dart';
+import 'package:anfa/page/image_page.dart';
 
+final client = MqttServerClient.withPort('broker.hivemq.com','flutter_client', 1883);
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.cameras}) : super(key: key);
@@ -22,11 +25,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   CameraController controller;
   ImageInfo imageInfo;
+  String red= "R", green="G", blue="B";
+
 
   // open camera
   @override
   void initState() {
     super.initState();
+    connect();
     initCamera(widget.cameras);
     SystemChannels.lifecycle.setMessageHandler((msg) {
       if (msg == AppLifecycleState.resumed.toString()) {
@@ -82,6 +88,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   String timestamp() => new DateTime.now().millisecondsSinceEpoch.toString();
 
+  void sendx(String msg) {
+    const pubTopic = 'anfa/fakenews/rpi';
+    final builder = MqttClientPayloadBuilder();
+    builder.addString(msg);
+    client.publishMessage(pubTopic, MqttQos.atLeastOnce, builder.payload);
+  }
+
   Future<String> capture() async {
     if (!controller.value.isInitialized) {
       return null;
@@ -124,6 +137,60 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     aspectRatio: controller.value.aspectRatio,
                     child: new CameraPreview(controller)),
               ))),
+      // rpi function
+      new Positioned(
+        top: (MediaQuery.of(context).size.height / 10*5 -15),
+        height: 30.0,
+        width: 30.0,
+        left: 15,
+        child: new RaisedButton(
+            onPressed: () => sendx('R'),
+            color: Colors.red,
+            padding: EdgeInsets.all(5.0),
+            shape: new RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(30.0))),
+            child: new Icon(Icons.keyboard_arrow_left, size: 20.0, color: Colors.white)),
+      ),
+      new Positioned(
+        top: (MediaQuery.of(context).size.height / 10*6 -15),
+        height: 30.0,
+        width: 30.0,
+        left: 15,
+        child: new RaisedButton(
+            onPressed: () => sendx('G'),
+            color: Colors.green,
+            padding: EdgeInsets.all(5.0),
+            shape: new RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(30.0))),
+            child: new Icon(Icons.keyboard_arrow_up, size: 20.0, color: Colors.white)),
+      ),
+      new Positioned(
+        top: (MediaQuery.of(context).size.height / 10*7 -15),
+        height: 30.0,
+        width: 30.0,
+        left: 15,
+        child: new RaisedButton(
+            onPressed: () => sendx('B'),
+            color: Colors.blue,
+            padding: EdgeInsets.all(5.0),
+            shape: new RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(30.0))),
+            child: new Icon(Icons.keyboard_arrow_down, size: 20.0, color: Colors.white)),
+      ),
+      new Positioned(
+        top: (MediaQuery.of(context).size.height / 10*8 -15),
+        height: 30.0,
+        width: 30.0,
+        left: 15,
+        child: new RaisedButton(
+            onPressed: () => sendx('DO'),
+            color: Colors.black,
+            padding: EdgeInsets.all(5.0),
+            shape: new RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(30.0))),
+            child: new Icon(Icons.keyboard_arrow_right, size: 20.0, color: Colors.white)),
+      ),
+      // camera
       new Positioned(
         bottom: 20.0,
         height: 60.0,
@@ -181,5 +248,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         ))),
       ]))), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+Future<MqttServerClient> connect() async {
+  client.setProtocolV311();
+  client.logging(on: true);
+  client.keepAlivePeriod = 20;
+  await client.connect();
+  if (client.connectionStatus.state == MqttConnectionState.connected) {
+    print('client connected');
+  } else {
+    print(
+        'client connection failed - disconnecting, state is ${client.connectionStatus.state}');
+    client.disconnect();
   }
 }

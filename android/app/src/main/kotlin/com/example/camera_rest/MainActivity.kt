@@ -1,4 +1,4 @@
-package com.example.camera_rest
+package com.kidneyweakx.anfa
 
 import io.flutter.embedding.android.FlutterActivity
 
